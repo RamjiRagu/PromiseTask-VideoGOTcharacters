@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game of Thrones Quotes</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbs5uRHEfY6H2uEwTo5MZ8fNp9JsWCIpD0O0+g9G28i9zFfpKK5t6EobFOpm3QMA" crossorigin="anonymous">
+    <style>
+        body {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="mt-4 mb-4">Game of Thrones Quotes</h1>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="charactersSelect" class="form-label">Select a character:</label>
+                <select class="form-select" id="charactersSelect">
+                    <option value="" disabled selected>Select a character</option>
+                </select>
+                <button class="btn btn-primary mt-3" type="button" onclick="getQuotes()">Get Quotes</button>
+            </div>
+        </div>
+        <div id="quotes" class="mt-4"></div>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-F0MynxqdL6P8eXk+01PO5xO2nHMGZOnwH4F6kHfc/6u7IygvlQgs/3lvpzhe2sGO" crossorigin="anonymous"></script>
+
+    <script>
+        // Fetch characters from the API and populate the dropdown
+        fetch('https://api.gameofthronesquotes.xyz/v1/characters')
+            .then(response => response.json())
+            .then(data => {
+                const charactersSelect = document.getElementById('charactersSelect');
+
+                data.forEach(character => {
+                    const option = document.createElement('option');
+                    option.value = character.name;
+                    option.textContent = character.name;
+                    charactersSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+
+        function getQuotes() {
+            const selectedCharacter = document.getElementById('charactersSelect').value;
+            const quotesDiv = document.getElementById('quotes');
+
+            // Clear previous quotes
+            quotesDiv.innerHTML = '';
+
+            // Fetch quotes for the selected character
+            fetch(`https://api.gameofthronesquotes.xyz/v1/characters/${selectedCharacter}/quotes`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const quotesList = document.createElement('ul');
+                        quotesList.classList.add('list-group');
+
+                        data.forEach(quote => {
+                            const listItem = document.createElement('li');
+                            listItem.classList.add('list-group-item');
+                            listItem.textContent = quote.sentence;
+
+                            quotesList.appendChild(listItem);
+                        });
+
+                        quotesDiv.appendChild(quotesList);
+                    } else {
+                        quotesDiv.textContent = 'No quotes found for the selected character.';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
